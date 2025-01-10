@@ -6,7 +6,6 @@ import (
 	"crypto/rsa"
 	"crypto/sha512"
 	"crypto/x509"
-	"encoding/json"
 	"encoding/pem"
 	"fmt"
 )
@@ -69,18 +68,13 @@ func (r *RsaKeys) EncodePublicKeyPEM() ([]byte, error) {
 
 func (r *RsaKeys) SignPayloadSha512(data []byte) ([]byte, error) {
 
-	licenseBody, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
-	}
-
 	licenseHash := sha512.New()
-	_, err = licenseHash.Write(licenseBody)
+	_, err := licenseHash.Write(data)
 	if err != nil {
 		return nil, err
 	}
 
 	licenseBodyHash := licenseHash.Sum(nil)
 	signature, err := rsa.SignPKCS1v15(rand.Reader, r.privateKey, crypto.SHA512, licenseBodyHash)
-	return append(licenseBody, signature...), nil
+	return append(data, signature...), nil
 }
