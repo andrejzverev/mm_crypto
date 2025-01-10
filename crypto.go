@@ -30,8 +30,11 @@ func (r *RsaKeys) GenerateKey(keybits int) error {
 }
 
 // Decode private key from PEM format
-func (r *RsaKeys) ImportPrivateKeyPEM(pem []byte) error {
-	privateKey, err := x509.ParsePKCS1PrivateKey(pem)
+func (r *RsaKeys) ImportPrivateKeyPEM(pemBody []byte) error {
+	var privateKeyBlock *pem.Block
+
+	privateKeyBlock, _ = pem.Decode(pemBody)
+	privateKey, err := x509.ParsePKCS1PrivateKey(privateKeyBlock.Bytes)
 	if err != nil {
 		return err
 	}
